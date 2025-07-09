@@ -43,21 +43,6 @@ def generate_image(params: str) -> dict:
     try:
         param_dict = json.loads(params)
         prompt = param_dict["prompt"]
-        width = param_dict.get("width", 512)
-        height = param_dict.get("height", 512)
-        workflow_id = param_dict.get("workflow_id", "basic_api_test")
-        model = param_dict.get("model", None)
-
-        # Use global comfyui_client (since mcp.context isn’t available)
-        image_url = comfyui_client.generate_image(
-            prompt=prompt,
-            width=width,
-            height=height,
-            workflow_id=workflow_id,
-            model=model
-        )
-        logger.info(f"Returning image URL: {image_url}")
-        return {"image_url": image_url}
     except Exception as e:
         logger.error(f"Error: {e}")
         return {"error": str(e)}
@@ -70,8 +55,18 @@ async def handle_websocket(websocket, path):
             request = json.loads(message)
             logger.info(f"Received message: {request}")
             if request.get("tool") == "generate_image":
-                result = generate_image(request.get("params", ""))
-                await websocket.send(json.dumps(result))
+                try:
+                    params = json.loads(request.get("params", "{}"))
+                    logger.info(f"Executing generate_image with: {params}")
+                    
+                    # Pass all params dynamically to the generate_image function
+                    image_path = comfyui_client.generate_image(**params)
+                    
+                    result = {"image_path": image_path}
+                    await websocket.send(json.dumps(result))
+                except Exception as e:
+                    logger.error(f"Error processing generate_image: {e}")
+                    await websocket.send(json.dumps({"error": str(e)}))
             else:
                 await websocket.send(json.dumps({"error": "Unknown tool"}))
     except websockets.ConnectionClosed:

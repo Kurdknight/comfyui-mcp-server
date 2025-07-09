@@ -2,15 +2,18 @@ import requests
 import json
 import time
 import logging
+import os
+import shutil
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("ComfyUIClient")
 
 DEFAULT_MAPPING = {
     "prompt": ("6", "text"),
-    "width": ("5", "width"),
-    "height": ("5", "height"),
-    "model": ("4", "ckpt_name")
+    "image_url": ("192", "image"),
+   # "width": ("5", "width"),
+   # "height": ("5", "height"),
+   # "model": ("4", "ckpt_name")
 }
 
 class ComfyUIClient:
@@ -33,21 +36,16 @@ class ComfyUIClient:
             logger.warning(f"Error fetching models: {e}")
             return []
 
-    def generate_image(self, prompt, width, height, workflow_id="basic_api_test", model=None):
+    def generate_image(self, prompt, image_url=None, workflow_id="flux.kontext"):
         try:
             workflow_file = f"workflows/{workflow_id}.json"
             with open(workflow_file, "r") as f:
                 workflow = json.load(f)
 
-            params = {"prompt": prompt, "width": width, "height": height}
-            if model:
-                # Validate or correct model name
-                if model.endswith("'"):  # Strip accidental quote
-                    model = model.rstrip("'")
-                    logger.info(f"Corrected model name: {model}")
-                if self.available_models and model not in self.available_models:
-                    raise Exception(f"Model '{model}' not in available models: {self.available_models}")
-                params["model"] = model
+            # Prepare parameters, only including what's necessary
+            params = {"prompt": prompt}
+            if image_url:
+                params["image_url"] = image_url
 
             for param_key, value in params.items():
                 if param_key in DEFAULT_MAPPING:
@@ -69,14 +67,40 @@ class ComfyUIClient:
                 history = requests.get(f"{self.base_url}/history/{prompt_id}").json()
                 if history.get(prompt_id):
                     outputs = history[prompt_id]["outputs"]
-                    logger.info("Workflow outputs: %s", json.dumps(outputs, indent=2))
-                    image_node = next((nid for nid, out in outputs.items() if "images" in out), None)
-                    if not image_node:
-                        raise Exception(f"No output node with images found: {outputs}")
-                    image_filename = outputs[image_node]["images"][0]["filename"]
+                    # Log the full output for detailed debugging
+                    logger.info("Full workflow outputs received: %s", json.dumps(outputs, indent=2))
+                    final_image_data = None
+                    for node_id, node_output in outputs.items():
+                        if "images" in node_output:
+                            for image in node_output["images"]:
+                                if image.get("type") == "output":
+                                    final_image_data = image
+                                    break
+                        if final_image_data:
+                            break
+
+                    if not final_image_data:
+                        raise Exception(f"No output node with images of type 'output' found: {outputs}")
+
+                    image_filename = final_image_data["filename"]
                     image_url = f"{self.base_url}/view?filename={image_filename}&subfolder=&type=output"
                     logger.info(f"Generated image URL: {image_url}")
-                    return image_url
+
+                    output_dir = "output"
+                    if not os.path.exists(output_dir):
+                        os.makedirs(output_dir)
+
+                    response = requests.get(image_url, stream=True)
+                    if response.status_code == 200:
+                        local_filepath = os.path.join(output_dir, image_filename)
+                        with open(local_filepath, 'wb') as f:
+                            response.raw.decode_content = True
+                            shutil.copyfileobj(response.raw, f)
+                        logger.info(f"Image saved to {local_filepath}")
+                        return local_filepath
+                    else:
+                        logger.error(f"Failed to download image from {image_url}")
+                        return image_url  # Fallback to returning URL
                 time.sleep(1)
             raise Exception(f"Workflow {prompt_id} didn’t complete within {max_attempts} seconds")
 

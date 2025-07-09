@@ -5,11 +5,10 @@ import json
 payload = {
     "tool": "generate_image",
     "params": json.dumps({
-        "prompt": "an english mastiff dog sitting on a large boulder, bright shiny day",
-        "width": 512,
-        "height": 512,
-        "workflow_id": "basic_api_test",
-        "model": "v1-5-pruned-emaonly.ckpt"  # No extra quote
+        "prompt": "transform this car to a different color, like red glossy shiny",
+
+        "image_url": "\\\\ds918\\home\\Photos\\MobileBackup\\GalaxyS20U\\DCIM\\Camera\\2024\\08\\20240805_163031.jpg",
+        "workflow_id": "flux.kontext"
     })
 }
 

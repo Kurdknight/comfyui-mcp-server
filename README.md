@@ -1,92 +1,330 @@
-# ComfyUI MCP Server
+# Your Volo App
 
-A lightweight Python-based MCP (Model Context Protocol) server that interfaces with a local [ComfyUI](https://github.com/comfyanonymous/ComfyUI) instance to generate images programmatically via AI agent requests.
+Welcome to your new full-stack application! This project was created with `create-volo-app` and comes pre-configured with a modern tech stack and production-ready architecture.
 
-## Overview
+## 🎯 **Philosophy**
 
-This project enables AI agents to send image generation requests to ComfyUI using the MCP protocol over WebSocket. It supports:
-- Flexible workflow selection (e.g., `basic_api_test.json`).
-- Dynamic parameters: `prompt`, `width`, `height`, and `model`.
-- Returns image URLs served by ComfyUI.
+This application provides a highly opinionated, production-ready foundation for building full-stack applications with a decoupled frontend and backend. It's designed to maximize development velocity while adhering to best practices, including clear separation of concerns and secure handling of sensitive credentials.
 
-## Prerequisites
+Many boilerplates offer a rapid 'hello world' experience for local development but often defer critical decisions about authentication, database integration, and production deployment. This template takes a different approach. We believe that the complexities of a true full-stack application - setting up auth, a database, and distinct hosting for UI and API - are largely unavoidable for production use. By addressing these components comprehensively from the start, this template aims to provide a clearer, more predictable path to a robust, deployable application, minimizing 'surprise' hurdles down the line and fostering a deeper understanding of the full stack architecture.
 
-- **Python 3.10+**
-- **ComfyUI**: Installed and running locally (e.g., on `localhost:8188`).
-- **Dependencies**: `requests`, `websockets`, `mcp` (install via pip).
+Start with everything running locally on your machine, then progressively connect to production services when you're ready or dive in and connect them all at app creation.
 
-## Setup
-
-1. **Clone the Repository**:
-   git clone <your-repo-url>
-   cd comfyui-mcp-server
-
-2. **Install Dependencies**:
-
-   pip install requests websockets mcp
+## 🚀 **What You Have**
 
 
-3. **Start ComfyUI**:
-- Install ComfyUI (see [ComfyUI docs](https://github.com/comfyanonymous/ComfyUI)).
-- Run it on port 8188:
-  ```
-  cd <ComfyUI_dir>
-  python main.py --port 8188
-  ```
+**Frontend:**
+- ⚛️ React + TypeScript + Vite
+- 🎨 Tailwind CSS + ShadCN components
+- 🔐 Firebase Authentication (Google Sign-In)
 
-4. **Prepare Workflows**:
-- Place API-format workflow files (e.g., `basic_api_test.json`) in the `workflows/` directory.
-- Export workflows from ComfyUI’s UI with “Save (API Format)” (enable dev mode in settings).
+**Backend:**
+- 🔥 Hono API backend (NodeJS)
+- 🗄️ PostgreSQL with Drizzle ORM
+- 🔑 Firebase Admin SDK
 
-## Usage
+**Local Development (Default):**
+- ⚡ Runs UI + Server + DB + Auth on your computer
+- 🏠 Embedded PostgreSQL database
+- 🔧 Firebase Auth emulator
+- ✅ Zero sign-ins or accounts needed
 
-1. **Run the MCP Server**:
-   python server.py
+**Production (when connected):**
+- 🌐 Cloudflare Pages + Workers deployment ready
+- 🗄️ Neon, Supabase, or custom PostgreSQL
+- 🔐 Production Firebase Auth
 
-- Listens on `ws://localhost:9000`.
+## 🛠️ **Development**
 
-2. **Test with the Client**:
-   python client.py
+Start both frontend and backend (with embedded PostgreSQL database and Firebase emulator):
 
-- Sends a sample request: `"a dog wearing sunglasses"` with `512x512` using `sd_xl_base_1.0.safetensors`.
-- Output example:
-  ```
-  Response from server:
-  {
-    "image_url": "http://localhost:8188/view?filename=ComfyUI_00001_.png&subfolder=&type=output"
-  }
-  ```
+```bash
+pnpm run dev
+```
 
-3. **Custom Requests**:
-- Modify `client.py`’s `payload` to change `prompt`, `width`, `height`, `workflow_id`, or `model`.
-- Example:
-  ```
-  "params": json.dumps({
-      "prompt": "a cat in space",
-      "width": 768,
-      "height": 768,
-      "workflow_id": "basic_api_test",
-      "model": "v1-5-pruned-emaonly.ckpt"
-  })
-  ```
+This automatically assigns available ports and displays them on startup:
+- **Frontend**: Usually `http://localhost:5173` (or next available)
+- **Backend API**: Usually `http://localhost:8787` (or next available)
+- **PostgreSQL**: Embedded database on dynamic port (starts from 5433)
 
-## Project Structure
+The system handles port conflicts automatically. For multiple projects, use separate folders.
 
-- `server.py`: MCP server with WebSocket transport and lifecycle support.
-- `comfyui_client.py`: Interfaces with ComfyUI’s API, handles workflow queuing.
-- `client.py`: Test client for sending MCP requests.
-- `workflows/`: Directory for API-format workflow JSON files.
+> **📋 Port Management**: See [`docs/PORT_HANDLING.md`](docs/PORT_HANDLING.md) for details on running multiple instances and port conflict resolution.
 
-## Notes
+### Individual Commands
 
-- Ensure your chosen `model` (e.g., `v1-5-pruned-emaonly.ckpt`) exists in `<ComfyUI_dir>/models/checkpoints/`.
-- The MCP SDK lacks native WebSocket transport; this uses a custom implementation.
-- For custom workflows, adjust node IDs in `comfyui_client.py`’s `DEFAULT_MAPPING` if needed.
+```bash
+# Frontend only
+cd ui && pnpm dev
 
-## Contributing
+# Backend only  
+cd server && pnpm dev
 
-Feel free to submit issues or PRs to enhance flexibility (e.g., dynamic node mapping, progress streaming).
+# Build frontend
+cd ui && pnpm build
 
-## License
+# Deploy backend (requires production setup)
+cd server && pnpm run deploy
+```
 
-Apache License
+## 🔗 **Connecting Production Services**
+
+Your app defaults to everything running locally. Connect to production services when you're ready:
+
+### Connect Production Database
+```bash
+# Choose from available providers
+pnpm connect:database
+
+# Or connect to specific provider
+pnpm connect:database:neon      # Neon PostgreSQL
+pnpm connect:database:supabase  # Supabase PostgreSQL
+pnpm connect:database:custom    # Custom PostgreSQL
+```
+
+### Connect Production Authentication
+```bash
+# Set up production Firebase Auth
+pnpm connect:auth
+```
+
+### Connect Production Deployment
+```bash
+# Set up Cloudflare Workers + Pages deployment
+pnpm connect:deploy
+```
+
+### Check Connection Status
+```bash
+# See what's connected to production vs local
+pnpm connection:status
+```
+
+**What happens when you connect services:**
+- Your `.env` files are automatically updated
+- A backup of your current config is created
+- You can always revert to local development by restoring the backup
+
+## 📁 **Project Structure**
+
+```
+├── ui/                    # React frontend
+│   ├── src/
+│   │   ├── components/    # UI components (ShadCN)
+│   │   ├── lib/          # Utilities & Firebase config
+│   │   └── App.tsx       # Main app component
+│   └── package.json
+├── server/               # Hono API backend
+│   ├── src/
+│   │   ├── middleware/   # Auth & other middleware
+│   │   ├── schema/       # Database schema (Drizzle)
+│   │   └── index.ts      # API routes
+│   ├── wrangler.toml     # Cloudflare Worker config (when connected)
+│   ├── .env              # Your environmental variables
+│   └── package.json
+├── data/                 # Local development data
+│   ├── postgres/         # Embedded PostgreSQL data
+│   └── firebase-emulator/ # Firebase emulator data (auto-backed up)
+└── scripts/
+    ├── post-setup.js     # Setup automation
+    ├── run-dev.js        # Development server runner
+    └── periodic-emulator-backup.js # Firebase data backup (runs automatically)
+```
+
+## 🔧 **Customization**
+
+### Adding API Routes
+
+Edit `server/src/index.ts`:
+
+```typescript
+// Add to the existing api router
+api.get('/your-route', (c) => {
+  return c.json({ message: 'Hello!' });
+});
+
+// For protected routes, add to protectedRoutes:
+protectedRoutes.get('/private-route', (c) => {
+  const user = c.get('user'); // Get authenticated user
+  return c.json({ user });
+});
+```
+
+### Database Changes
+
+1. Edit schema in `server/src/schema/`
+2. Push changes: `cd server && pnpm db:push`
+
+### UI Components
+
+- Add components in `ui/src/components/`
+- Use ShadCN/UI: Browse components at [ui.shadcn.com](https://ui.shadcn.com)
+- Install new components: `cd ui && npx shadcn-ui@latest add [component]`
+
+### Styling
+
+- Modify `ui/tailwind.config.js` for custom themes
+- Global styles in `ui/src/index.css`
+- Use Tailwind utility classes throughout
+
+## 🚀 **Deployment**
+
+> **Note**: Embedded PostgreSQL is for local development only. Production deployments require an external database (configured during setup).
+
+### Backend (Cloudflare Workers)
+
+```bash
+cd server
+pnpm run deploy
+```
+
+Your API will be available at: `https://your-worker-name.your-subdomain.workers.dev`
+
+### Frontend (Cloudflare Pages)
+
+1. **Connect to Git**: Link your repository to [Cloudflare Pages](https://dash.cloudflare.com/pages)
+2. **Build Settings**:
+   - Build command: `pnpm run build`
+   - Build output: `ui/dist`
+3. **Deploy**: Automatic on every git push
+
+### Environment Variables (Production)
+
+Set these in Cloudflare dashboards:
+
+**Worker Environment Variables:**
+- `DATABASE_URL` - Your database connection string
+- `FIREBASE_PROJECT_ID` - Firebase project ID
+
+**Pages Environment Variables (if needed):**
+- `VITE_API_URL` - Your deployed worker URL (optional, defaults work)
+
+### Post-Deployment Setup
+
+1. **Update Firebase authorized domains**:
+   - Go to [Firebase Console](https://console.firebase.google.com) > Authentication > Settings
+   - Add your Pages domain (e.g., `your-app.pages.dev`)
+
+2. **Test your deployment**:
+   ```bash
+   curl https://your-worker-name.your-subdomain.workers.dev/api/v1/hello
+   ```
+
+## 🔐 **Authentication Flow**
+
+Your app includes a complete authentication system that works in both local and production modes:
+
+### Local Mode (Default)
+1. **Sign in**: Use any email/password combination in the UI
+2. **Storage**: User data stored in local Firebase emulator
+3. **API calls**: Authenticated requests work normally
+4. **Development**: No external accounts needed
+
+### Production Mode (After `pnpm connect:auth`)
+1. **Login**: Users sign in with Google (or other configured providers)
+2. **Token**: Frontend gets Firebase ID token
+3. **API calls**: Token sent in `Authorization: Bearer <token>` header
+4. **Verification**: Backend verifies token and creates/finds user in database
+5. **Protection**: Protected routes automatically have user context
+
+### Example API Call
+
+```typescript
+// Frontend (already implemented in lib/serverComm.ts)
+const response = await api.getCurrentUser();
+console.log(response.user);
+```
+
+## 🗄️ **Database**
+
+Your database is set up with Drizzle ORM and works the same whether local or production:
+
+### User Schema (included)
+
+```typescript
+// server/src/schema/users.ts
+export const users = pgTable('users', {
+  id: text('id').primaryKey(),
+  email: text('email').unique().notNull(),
+  display_name: text('display_name'),
+  photo_url: text('photo_url'),
+  created_at: timestamp('created_at').defaultNow(),
+  updated_at: timestamp('updated_at').defaultNow(),
+});
+```
+
+### Adding New Tables
+
+1. Create schema file in `server/src/schema/`
+2. Export from main schema file
+3. Push to database: `cd server && pnpm db:push`
+
+## 📚 **Learning Resources**
+
+- **React**: [react.dev](https://react.dev)
+- **Hono**: [hono.dev](https://hono.dev)
+- **Drizzle ORM**: [orm.drizzle.team](https://orm.drizzle.team)
+- **Tailwind CSS**: [tailwindcss.com](https://tailwindcss.com)
+- **ShadCN/UI**: [ui.shadcn.com](https://ui.shadcn.com)
+- **Cloudflare Workers**: [developers.cloudflare.com/workers](https://developers.cloudflare.com/workers)
+- **Firebase Auth**: [firebase.google.com/docs/auth](https://firebase.google.com/docs/auth)
+
+## 🆘 **Troubleshooting**
+
+### Development Issues
+
+**Backend won't start:**
+```bash
+cd server
+# Check environment variables
+cat .env
+# Reinstall dependencies
+pnpm install
+```
+
+**Database connection errors:**
+```bash
+cd server
+# Test database connection
+pnpm db:push
+```
+
+**Frontend build errors:**
+```bash
+cd ui
+# Clear cache and reinstall
+rm -rf node_modules .vite dist
+pnpm install
+```
+
+### Authentication Issues
+
+**Local Development:**
+- Firebase emulator should start automatically with `pnpm dev`
+- Try signing in with any email/password combination
+- Check `data/firebase-emulator/` for persisted data
+- **Data Protection**: Emulator data is automatically backed up every 60 seconds and on clean shutdown to prevent data loss during crashes
+
+**Production Mode:**
+1. **Check Firebase config**: `ui/src/lib/firebase-config.json`
+2. **Verify environment variables**: `server/.env`
+3. **Check authorized domains** in Firebase Console
+
+### Deployment Issues
+
+1. **Verify build succeeds locally**
+2. **Check environment variables** in Cloudflare dashboards
+3. **Review logs** in Cloudflare Workers/Pages dashboards
+
+## 🎯 **Next Steps**
+
+1. **Explore the code**: Start with `ui/src/App.tsx` and `server/src/index.ts`
+2. **Customize the UI**: Modify components and styling
+3. **Add features**: Build your app logic in both frontend and backend
+4. **Deploy**: Push to git for automatic deployment
+
+---
+
+**Happy coding!** 🚀
+
+Need help? Check the detailed documentation in each workspace (`server/README.md`, `ui/README.md`) or visit the [community discussions](https://github.com/VoloBuilds/create-volo-app/discussions). 
