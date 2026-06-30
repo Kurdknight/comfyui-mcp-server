@@ -5,9 +5,11 @@ import { Navbar } from '@/components/navbar';
 import { AppSidebar } from '@/components/appSidebar';
 import { Home } from '@/pages/Home';
 import { Settings } from '@/pages/Settings';
-import { Page1 } from '@/pages/Page1';
-import { Page2 } from '@/pages/Page2';
+import AIGeneration from '@/pages/AIGeneration';
+import { Gallery } from '@/pages/Gallery';
+import { History } from '@/pages/History';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Toaster } from '@/components/ui/sonner';
 import {
   SidebarProvider,
   SidebarInset,
@@ -35,8 +37,9 @@ function AppContent() {
               <main className="flex-1">
                 <Routes>
                   <Route path="/" element={<Home />} />
-                  <Route path="/page1" element={<Page1 />} />
-                  <Route path="/page2" element={<Page2 />} />
+                  <Route path="/generate" element={<AIGeneration />} />
+                  <Route path="/gallery" element={<Gallery />} />
+                  <Route path="/history" element={<History />} />
                   <Route path="/settings" element={<Settings />} />
                 </Routes>
               </main>
@@ -61,6 +64,7 @@ function App() {
         <Router>
           <AppContent />
         </Router>
+        <Toaster />
       </ThemeProvider>
     </AuthProvider>
   );

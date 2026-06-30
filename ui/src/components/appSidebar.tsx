@@ -1,8 +1,9 @@
 import { 
   Home, 
   Settings, 
-  FileText,
-  Layers,
+  Sparkles,
+  Images,
+  History,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
@@ -38,18 +39,26 @@ export function AppSidebar() {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton tooltip="Page 1" isActive={isActive('/page1')} asChild>
-                  <Link to="/page1">
-                    <FileText className="w-4 h-4" />
-                    <span>Page 1</span>
+                <SidebarMenuButton tooltip="AI Generation" isActive={isActive('/generate')} asChild>
+                  <Link to="/generate">
+                    <Sparkles className="w-4 h-4" />
+                    <span>AI Generation</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton tooltip="Page 2" isActive={isActive('/page2')} asChild>
-                  <Link to="/page2">
-                    <Layers className="w-4 h-4" />
-                    <span>Page 2</span>
+                <SidebarMenuButton tooltip="Gallery" isActive={isActive('/gallery')} asChild>
+                  <Link to="/gallery">
+                    <Images className="w-4 h-4" />
+                    <span>Gallery</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton tooltip="History" isActive={isActive('/history')} asChild>
+                  <Link to="/history">
+                    <History className="w-4 h-4" />
+                    <span>History</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

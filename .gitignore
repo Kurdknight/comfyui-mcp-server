@@ -3,6 +3,22 @@ node_modules
 data
 .pnpm-store/
 
+# Python
+__pycache__/
+*.pyc
+
+# ComfyUI MCP server runtime data
+/output/
+/temp/
+
+# Local scratch / planning notes
+/plan.md
+/org.plan.md
+/progress-so-far.md
+/joenorton-comfyui-mcp-server.txt
+/audio.mp3
+/image.png
+
 # Build outputs
 dist
 dist-ssr

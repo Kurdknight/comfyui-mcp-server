@@ -1,0 +1,17 @@
+.git
+__pycache__
+*.pyc
+node_modules
+ui
+server
+data
+docs
+scripts
+output
+temp
+*.md
+*.mp3
+*.png
+*.jpg
+*.txt
+!requirements.txt

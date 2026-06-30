@@ -1,0 +1,12 @@
+services:
+  comfyui-mcp-server:
+    build: .
+    container_name: comfyui-mcp-server
+    restart: unless-stopped
+    ports:
+      - "9500:9500"
+    environment:
+      COMFYUI_URL: http://10.27.27.137:8188
+    volumes:
+      - ./output:/app/output
+      - ./temp:/app/temp

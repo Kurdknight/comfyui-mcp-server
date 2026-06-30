@@ -13,7 +13,7 @@ payload = {
 }
 
 async def test_mcp_server():
-    uri = "ws://localhost:9000"
+    uri = "ws://localhost:9500"
     try:
         async with websockets.connect(uri) as ws:
             print("Connected to MCP server")
